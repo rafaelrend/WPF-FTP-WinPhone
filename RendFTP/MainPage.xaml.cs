@@ -24,8 +24,9 @@ namespace RendFTP
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            
            //  /{assemblyName};component/{path}
-            NavigationService.Navigate(new Uri("/RendFTP/PageServer.xaml", UriKind.Relative));
+            NavigationService.Navigate(new Uri("/PageServer.xaml", UriKind.Relative));
 
         }
 

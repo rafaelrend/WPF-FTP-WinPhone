@@ -8,6 +8,8 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System.Windows.Media;
+using WinPhoneFtp.FtpService;
+using System.Threading;
 
 namespace RendFTP
 {
@@ -21,6 +23,7 @@ namespace RendFTP
         //Variável para o tamanho dos inputs, to com preguiça de ficar repetindo ela.  //Pra usar ela no XAML é Binding {Binding InputSize}
         int InputSize = 72;
 
+        public static PhoneApplicationFrame RootFrame { get; private set; }
         private void btTestConnection_Click(object sender, RoutedEventArgs e)
         {
             if (!campoPreenchido(txtServer, "Informe o servidor"))
@@ -47,22 +50,44 @@ namespace RendFTP
             if (!campoPreenchido(txtUser, "Informe a senha"))
                 return;
 
-            OpenFTP.FTP f = new OpenFTP.FTP();
+           // OpenFTP.FTP f = new OpenFTP.FTP();
 
             try
             {
-                f.Connect(txtServer.Text, Convert.ToInt32(txtPort.Text),
-                     txtUser.Text, txtPass.Text);
 
-                f.Disconnect();
+                conect();
+               // f.Connect(txtServer.Text, Convert.ToInt32(txtPort.Text),
+                //     txtUser.Text, txtPass.Text);
 
-                setaMensagem("Conectado com sucesso!", "1");
+                //f.Disconnect();
+
             }
             catch (Exception exp)
             {
                 setaMensagem("Erro ao conectar: " + exp.Message, "2");
             }
 
+        }
+        public async System.Threading.Tasks.Task conect()
+        {
+            FtpClient Client = new FtpClient(txtServer.Text, txtPort.Text, Deployment.Current.Dispatcher);
+
+            Client.FtpConnected += Client_FtpConnected;
+            Client.FtpAuthenticationFailed += Client_FtpAuthenticationFailed;
+            //if (opcao == 1)
+                await Client.ConnectAsync();
+            //else
+             //   await Client.DisconnectAsync();
+
+        }
+        void Client_FtpAuthenticationFailed(object sender, EventArgs e)
+        {
+            setaMensagem("Erro ao conectar ", "2");
+        }
+
+        void Client_FtpConnected(object sender, EventArgs e)
+        {
+            setaMensagem("Conectado com sucesso!", "1");
         }
 
         private bool campoPreenchido(TextBox txt, string msg)
